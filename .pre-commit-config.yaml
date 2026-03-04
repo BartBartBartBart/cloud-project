@@ -1,0 +1,14 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/psf/black
+    rev: 26.1.0 # Use a recent stable version
+    hooks:
+      - id: black
+        args: [--check] # This runs black in check-only mode
+        types: [python]
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.3.0 # Use a recent stable version
+    hooks:
+      - id: flake8
+        types: [python]
