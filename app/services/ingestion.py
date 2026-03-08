@@ -6,6 +6,9 @@ from langchain_huggingface import HuggingFaceEmbeddings
 import re
 import os
 import sys
+import Any
+
+from retrieval import retrieve_and_generate
 
 
 def load_pdf(file_path: str) -> list[str]:
@@ -73,8 +76,8 @@ def chunk_text(
 
 
 def create_embeddings(
-    chunks: list[str], model_name: str = "all-MiniLM-L12-v2"
-) -> list[tuple[str, list[float], dict]]:
+    chunks: list[Document], model_name: str = "all-MiniLM-L12-v2"
+) -> tuple[list[tuple[Any, Any, Any]], Any]:
     """
     Create embeddings for each chunk of text using the specified
     SentenceTransformer model. Returns a list of tuples containing
@@ -120,22 +123,28 @@ def main():
         and os.path.isfile(file_path)
         and file_path.endswith(".pdf")
     ):
+        # Load PDF and extract text from each page
         pdf_text = load_pdf(file_path)
         chunks = chunk_text(pdf_text)
         print(f"Created {len(chunks)} chunks.")
 
+        # Create embeddings for each chunk of text
         embeddings, embedding_function = create_embeddings(chunks)
         print(f"Created embeddings for {len(embeddings)} chunks.")
-        print(f"Dimensionality of embeddings: {len(embeddings[0][1])}")
 
+        # Create a FAISS vector store from the embeddings
         vectorstore = create_vectorstore(embeddings, embedding_function)
         print("Created FAISS vector store.")
 
-        query = "What is a letter-string analogy task?"
-        results = vectorstore.similarity_search(query, k=3)
-        print(f"Top 3 results for query '{query}':")
-        for i, result in enumerate(results):
+        # Retrieve relevant documents and generate an answer to the query
+        results = retrieve_and_generate(
+            vectorstore, "What is a letter-string analogy task?", k=3
+        )
+        print("Retrieved context for query:")
+        for i, result in enumerate(results["retrieved_chunks"]):
             print(f"Result {i+1} [{result.metadata}]: {result.page_content}")
+        print("\nGenerated response:")
+        print(results["response"])
 
     else:
         print("Invalid file path or not a PDF file. Please try again.")
