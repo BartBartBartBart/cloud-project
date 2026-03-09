@@ -1,0 +1,19 @@
+name: rag-app
+channels:
+  - defaults
+dependencies:
+  - python=3.14
+  - pip
+  - pip:
+    - langchain-core
+    - langchain-text-splitters
+    - langchain-community
+    - langchain-huggingface
+    - langchain-ollama
+    - sentence-transformers
+    - faiss-cpu
+    - pypdf
+    - pre-commit # dev
+    - black # dev
+    - flake8 # dev
+    - mypy # dev

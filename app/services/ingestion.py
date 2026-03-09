@@ -3,12 +3,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
+from typing import Any
 import re
-import os
 import sys
-import Any
-
-from retrieval import retrieve_and_generate
 
 
 def load_pdf(file_path: str) -> list[str]:
@@ -114,41 +111,3 @@ def create_vectorstore(
         embedding_function,
         metadatas=metadatas,
     )
-
-
-def main():
-    file_path = str(sys.argv[1]) if len(sys.argv) > 1 else None
-    if (
-        file_path is not None
-        and os.path.isfile(file_path)
-        and file_path.endswith(".pdf")
-    ):
-        # Load PDF and extract text from each page
-        pdf_text = load_pdf(file_path)
-        chunks = chunk_text(pdf_text)
-        print(f"Created {len(chunks)} chunks.")
-
-        # Create embeddings for each chunk of text
-        embeddings, embedding_function = create_embeddings(chunks)
-        print(f"Created embeddings for {len(embeddings)} chunks.")
-
-        # Create a FAISS vector store from the embeddings
-        vectorstore = create_vectorstore(embeddings, embedding_function)
-        print("Created FAISS vector store.")
-
-        # Retrieve relevant documents and generate an answer to the query
-        results = retrieve_and_generate(
-            vectorstore, "What is a letter-string analogy task?", k=3
-        )
-        print("Retrieved context for query:")
-        for i, result in enumerate(results["retrieved_chunks"]):
-            print(f"Result {i+1} [{result.metadata}]: {result.page_content}")
-        print("\nGenerated response:")
-        print(results["response"])
-
-    else:
-        print("Invalid file path or not a PDF file. Please try again.")
-
-
-if __name__ == "__main__":
-    main()

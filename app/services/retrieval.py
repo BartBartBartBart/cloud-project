@@ -1,7 +1,7 @@
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 from langchain_ollama.llms import OllamaLLM
-import Any
+from typing import Any
 
 model = OllamaLLM(model="qwen2.5:1.5b", num_gpu=0)
 
